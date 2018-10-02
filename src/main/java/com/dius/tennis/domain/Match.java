@@ -1,6 +1,7 @@
 package com.dius.tennis.domain;
 
 import static com.dius.tennis.domain.GameStatus.COMPLETE;
+import static com.dius.tennis.domain.SetStatus.TIE_BREAKER;
 
 public class Match {
 
@@ -9,15 +10,32 @@ public class Match {
 
     private GameScore gameScore;
 
+    private Set set;
+
     public void pointWonBy(String playerName) {
+        if (set.getSetStatus() == SetStatus.COMPLETE) {
+            // do nothing, report error?
+            return;
+        }
         Player playerThatWonPoint = getPlayerByName(playerName);
         Player playerThatDidntWinPoint = getOpponent(playerName);
 
+        if (set.getSetStatus() == TIE_BREAKER) {
+            // engage tie breaker increments
+            return;
+        }
+
+        // assume REGULAR_PROGRESS for set
         GameStatus gameStatus = gameScore.gamePointWon(playerThatWonPoint);
 
         if (gameStatus == COMPLETE) {
             // increment set
+            set.incrementSetScore(playerThatWonPoint);
         }
+    }
+
+    public String score() {
+        return set.getSetScore() + ", " + gameScore.gameScoreStatus();
     }
 
     private Player getPlayerByName(String playerName) {
@@ -38,6 +56,13 @@ public class Match {
             return playerA;
         }
         throw new IllegalArgumentException("Cannot find an opponent to unknown player");
+    }
+
+    public Match(String playerAName, String playerBName) {
+        this.playerA = new Player(playerAName);
+        this.playerB = new Player(playerBName);
+        this.set = new Set(playerA, playerB);
+        this.gameScore = new GameScore(playerA, playerB);
     }
 
 }
