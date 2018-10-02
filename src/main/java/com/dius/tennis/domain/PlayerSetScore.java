@@ -24,6 +24,12 @@ public class PlayerSetScore {
         this.score = SET_POINT_WON.get(score).apply(oppositionScore);
         return score;
     }
+    public int incrementTieBreaker(int oppositionTieBreaker) {
+        if (tieBreaker > 6 && (tieBreaker - oppositionTieBreaker) > 1) {
+            return this.tieBreaker;
+        }
+        return ++this.tieBreaker;
+    }
 
     public int getScore() {
         return score;

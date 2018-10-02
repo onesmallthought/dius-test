@@ -18,10 +18,10 @@ public class Match {
             return;
         }
         Player playerThatWonPoint = getPlayerByName(playerName);
-        Player playerThatDidntWinPoint = getOpponent(playerName);
 
         if (set.getSetStatus() == TIE_BREAKER) {
             // engage tie breaker increments
+            set.incrementTieBreaker(playerThatWonPoint);
             return;
         }
 

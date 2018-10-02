@@ -1,5 +1,6 @@
 package com.dius.tennis.domain;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
@@ -39,10 +40,30 @@ public class Set {
         return setStatus;
     }
 
+    public SetStatus incrementTieBreaker(Player player) {
+        if (this.setStatus != TIE_BREAKER) {
+            // do nothing
+            return TIE_BREAKER;
+        }
+        playerSetScores.get(player).incrementTieBreaker(playerSetScores.get(getOpponent(player)).getTieBreaker());
+        if (isWinningTieBreaker()) {
+            playerSetScores.get(player).setScore(7);
+            this.setStatus = COMPLETE;
+            return this.setStatus;
+        }
+        return setStatus;
+    }
+
     public String getSetScore() {
-        return this.playerSetScores.values().stream()
+        String setScore = this.playerSetScores.values().stream()
                 .map(score -> String.valueOf(score.getScore()))
                 .collect(Collectors.joining("-"));
+        if (setStatus == TIE_BREAKER) {
+            return setScore + "(" + this.playerSetScores.values().stream()
+                    .map(score -> String.valueOf(score.getTieBreaker()))
+                    .collect(Collectors.joining("-")) + ")";
+        }
+        return setScore;
     }
 
     public Player getOpponent(Player player) {
@@ -59,5 +80,13 @@ public class Set {
         return playerSetScores.values().stream().anyMatch(score -> score.getScore() == 7) ||
                 (playerSetScores.values().stream().anyMatch(score -> score.getScore() == 6) &&
                 playerSetScores.values().stream().anyMatch(score -> score.getScore() < 5));
+    }
+
+    private boolean isWinningTieBreaker() {
+        int maxTieBreakerScore = playerSetScores.values().stream()
+                .map(score -> score.getTieBreaker())
+                .max(Comparator.naturalOrder()).orElse(0);
+        return maxTieBreakerScore > 6 && playerSetScores.values().stream()
+                .anyMatch(score -> (maxTieBreakerScore - score.getTieBreaker()) > 1);
     }
 }
