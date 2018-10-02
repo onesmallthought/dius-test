@@ -1,6 +1,5 @@
 package com.dius.tennis.domain;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 
